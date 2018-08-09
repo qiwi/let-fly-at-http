@@ -1,0 +1,22 @@
+{
+  "name": "@qiwi/let-fly-at-http",
+  "version": "0.0.1",
+  "description": "Yet another http client",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "tsc --watch",
+    "build": "tsc",
+    "prepublish": "tsc"
+  },
+  "keywords": [
+    "nodejs",
+    "js",
+    "http"
+  ],
+  "author": "Nikita Savkin",
+  "license": "MIT",
+  "dependencies": {
+    "es6-promise": "^4.2.4",
+    "isomorphic-fetch": "^2.2.1"
+  }
+}
