@@ -1,6 +1,6 @@
 export interface IErrorData {
     response?: Response;
-    error?: any // TODO fetch error typedef
+    error?: any
 }
 
 export class HttpError extends Error {
