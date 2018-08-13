@@ -1,16 +1,22 @@
 import * as es6promise from 'es6-promise';
 import * as fetch from 'isomorphic-fetch';
-import {HttpError} from './error/http-error';
+import {HttpError, IErrorData} from './error/http-error';
 
 es6promise.polyfill();
+
+export interface IErrorHandler {
+    (error: HttpError): void | Promise<void>
+}
 
 export class HttpService {
     protected _baseUrl: string;
     protected _baseOptions: Request;
+    protected _errorHandler: IErrorHandler;
 
-    constructor(baseUrl: string, options: any = {}) {
+    constructor(baseUrl: string, options: any = {}, errorHandler?: IErrorHandler) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
+        this._errorHandler = errorHandler;
     }
 
     protected _currentRequestCount: number = 0;
@@ -64,24 +70,30 @@ export class HttpService {
 
     protected async _request<T>(url: string, options: Request): Promise<T> {
         this._currentRequestCount++;
+        let response: Response;
+        let error: any;
         try {
-            const response: Response = await fetch(url, options);
+            response = await fetch(url, options);
             if (response.ok) {
                 return await response.json();
-            } else {
-                this._handleError(response);
             }
         } catch (err) {
-            if (err instanceof HttpError) {
-                return;
-            }
-            this._handleError(err);
+            error = err;
         } finally {
             this._currentRequestCount--;
         }
+        await this._handleError({response, error});
     }
 
-    protected _handleError(response: Response): void {
-        throw new HttpError(response);
+    protected async _handleError(data: IErrorData): Promise<void> {
+        const error = new HttpError(data);
+        if (typeof this._errorHandler === 'function') {
+            const promise = this._errorHandler(error);
+            if(promise instanceof Promise) {
+                await promise;
+            }
+        } else {
+            throw error;
+        }
     }
 }
