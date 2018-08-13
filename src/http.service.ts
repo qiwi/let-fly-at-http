@@ -8,7 +8,7 @@ export class HttpService {
     protected _baseUrl: string;
     protected _baseOptions: Request;
 
-    constructor(baseUrl: string, options: any) {
+    constructor(baseUrl: string, options: any = {}) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
     }
@@ -72,6 +72,9 @@ export class HttpService {
                 this._handleError(response);
             }
         } catch (err) {
+            if (err instanceof HttpError) {
+                return;
+            }
             this._handleError(err);
         } finally {
             this._currentRequestCount--;

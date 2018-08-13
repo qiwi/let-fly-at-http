@@ -5,8 +5,10 @@
   "main": "build/index.js",
   "scripts": {
     "start": "tsc --watch",
-    "build": "tsc",
-    "prepublish": "tsc"
+    "build": "npm run clean && tsc",
+    "prepublish": "npm run build",
+    "test": "npm run build && mocha $NODE_DEBUG_OPTION test/ --recursive",
+    "clean": "rm -rf ./build"
   },
   "keywords": [
     "nodejs",
@@ -16,7 +18,15 @@
   "author": "Nikita Savkin",
   "license": "MIT",
   "dependencies": {
+    "@types/mocha": "^5.2.5",
     "es6-promise": "^4.2.4",
     "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.4",
+    "chai": "^4.1.2",
+    "mocha": "^5.2.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
   }
 }

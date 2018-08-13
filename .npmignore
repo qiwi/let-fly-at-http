@@ -75,6 +75,7 @@ typings/
 .serverless
 
 src
+test
 tsconfig.json
 tslint.json
 .gitignore

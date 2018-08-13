@@ -7,6 +7,7 @@ export class HttpError extends Error {
 
     constructor(response: Response) {
         super('HTTP_ERROR');
+        Object.setPrototypeOf(this, HttpError.prototype);
         this._response = response;
     }
 }

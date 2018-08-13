@@ -3,6 +3,7 @@
     "compilerOptions": {
         "target": "es5",
         "lib": ["es6", "ES2015", "dom"],
+        "types": ["mocha"],
         "module": "commonjs",
         "noImplicitAny": false,
         "removeComments": true,
