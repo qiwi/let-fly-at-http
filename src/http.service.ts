@@ -53,8 +53,15 @@ export class HttpService {
             {method: 'delete'}));
     }
 
-    public async requestRow<T>(route: string, options?: Request): Promise<T> {
-        return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options));
+    public async requestRaw<T>(route: string, options?: Request): Promise<T> {
+        this._currentRequestCount++;
+        try {
+            return await fetch(this._baseUrl + route, Object.assign({}, this._baseOptions, options));
+        } catch (err) {
+            this._handleError(err);
+        } finally {
+            this._currentRequestCount--;
+        }
     }
 
     public async request<T>(route: string, body?: any, options?: Request): Promise<T> {
