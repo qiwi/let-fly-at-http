@@ -8,12 +8,12 @@ es6promise.polyfill();
 export class HttpService {
     protected _baseUrl: string;
     protected _baseOptions: Request;
-    protected _timeout: number;
+    protected _timeoutms: number;
 
-    constructor(baseUrl: string, options: any = {}, timeout: number = 300000) {
+    constructor(baseUrl: string, options: any = {}, timeoutms: number = 300000) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
-        this._timeout = timeout;
+        this._timeoutms = timeoutms;
     }
 
     protected _currentRequestCount: number = 0;
@@ -62,7 +62,7 @@ export class HttpService {
             return await Promise.race([
                 fetch(this._baseUrl + route, Object.assign({}, this._baseOptions, options)),
                 new Promise((resolve, reject) =>
-                    setTimeout(() => reject(new HttpTimeoutError()), this._timeout)
+                    setTimeout(() => reject(new HttpTimeoutError()), this._timeoutms)
                 )
             ]);
         } catch (err) {
@@ -83,7 +83,7 @@ export class HttpService {
             const response: Response = await Promise.race([
                     fetch(url, options),
                     new Promise((resolve, reject) =>
-                        setTimeout(() => reject(new HttpTimeoutError()), this._timeout)
+                        setTimeout(() => reject(new HttpTimeoutError()), this._timeoutms)
                     )
                 ]
             );
@@ -99,10 +99,10 @@ export class HttpService {
         }
     }
 
-    protected _handleError(err: any): void {
+    protected _handleError(err: Response | Error): void {
         if (err instanceof HttpResponseError || err instanceof HttpTimeoutError) {
             throw err;
         }
-        throw new HttpResponseError(err);
+        throw new HttpResponseError(err as Response);
     }
 }
