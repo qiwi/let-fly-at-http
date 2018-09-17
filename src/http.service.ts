@@ -1,16 +1,19 @@
 import * as es6promise from 'es6-promise';
 import * as fetch from 'isomorphic-fetch';
-import {HttpError} from './error/http-error';
+import {HttpResponseError} from './error/http-response-error';
+import {HttpTimeoutError} from './error/http-timeout-error';
 
 es6promise.polyfill();
 
 export class HttpService {
     protected _baseUrl: string;
     protected _baseOptions: Request;
+    protected _timeout: number;
 
-    constructor(baseUrl: string, options: any = {}) {
+    constructor(baseUrl: string, options: any = {}, timeout: number = 300000) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
+        this._timeout = timeout;
     }
 
     protected _currentRequestCount: number = 0;
@@ -56,7 +59,12 @@ export class HttpService {
     public async requestRaw<T>(route: string, options?: Request): Promise<T> {
         this._currentRequestCount++;
         try {
-            return await fetch(this._baseUrl + route, Object.assign({}, this._baseOptions, options));
+            return await Promise.race([
+                fetch(this._baseUrl + route, Object.assign({}, this._baseOptions, options)),
+                new Promise((resolve, reject) =>
+                    setTimeout(() => reject(new HttpTimeoutError()), this._timeout)
+                )
+            ]);
         } catch (err) {
             this._handleError(err);
         } finally {
@@ -72,23 +80,29 @@ export class HttpService {
     protected async _request<T>(url: string, options: Request): Promise<T> {
         this._currentRequestCount++;
         try {
-            const response: Response = await fetch(url, options);
+            const response: Response = await Promise.race([
+                    fetch(url, options),
+                    new Promise((resolve, reject) =>
+                        setTimeout(() => reject(new HttpTimeoutError()), this._timeout)
+                    )
+                ]
+            );
             if (response.ok) {
                 return await response.json();
             } else {
                 this._handleError(response);
             }
         } catch (err) {
-            if (err instanceof HttpError) {
-                return;
-            }
             this._handleError(err);
         } finally {
             this._currentRequestCount--;
         }
     }
 
-    protected _handleError(response: Response): void {
-        throw new HttpError(response);
+    protected _handleError(err: any): void {
+        if (err instanceof HttpResponseError || err instanceof HttpTimeoutError) {
+            throw err;
+        }
+        throw new HttpResponseError(err);
     }
 }
