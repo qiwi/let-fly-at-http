@@ -1,4 +1,5 @@
 export class HttpResponseError extends Error {
+    static readonly ERROR_CODE = 'HTTP_RESPONSE_ERROR';
     protected _response: Response;
 
     get response() {
@@ -6,7 +7,7 @@ export class HttpResponseError extends Error {
     }
 
     constructor(response: Response) {
-        super('HTTP_RESPONSE_ERROR');
+        super(HttpResponseError.ERROR_CODE);
         Object.setPrototypeOf(this, HttpResponseError.prototype);
         this._response = response;
     }
