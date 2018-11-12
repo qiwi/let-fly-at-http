@@ -5,16 +5,18 @@ import {HttpTimeoutError} from './error/http-timeout-error';
 
 es6promise.polyfill();
 
-interface IRequest extends Request {
+export const DEFAULT_TIMEOUT = 5000;
+
+export interface IRequest extends Request {
     headers: any
 }
 
 export class HttpService {
     protected _baseUrl: string;
-    protected _baseOptions: Partial<Request>;
+    protected _baseOptions: Partial<IRequest>;
     protected _timeoutms: number;
 
-    constructor(baseUrl: string, options: Partial<IRequest> = {}, timeoutms: number = 5000) {
+    constructor(baseUrl: string, options: Partial<IRequest> = {}, timeoutms: number = DEFAULT_TIMEOUT) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
         this._timeoutms = timeoutms;
@@ -104,15 +106,15 @@ export class HttpService {
     }
 
     protected async _parseResponse(response: Response): Promise<any> {
-        const textOfResponse = await response.text();
-        if (!textOfResponse) {
+        const responseText = await response.text();
+        if (!responseText) {
             return null;
         }
         let responseObj;
         try {
-            responseObj = JSON.parse(textOfResponse);
+            responseObj = JSON.parse(responseText);
         } catch {
-            return textOfResponse;
+            return responseText;
         }
         return responseObj;
     }
