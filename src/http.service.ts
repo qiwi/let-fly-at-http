@@ -5,12 +5,18 @@ import {HttpTimeoutError} from './error/http-timeout-error';
 
 es6promise.polyfill();
 
+export const DEFAULT_TIMEOUT_MS = 5000;
+
+export interface IRequest extends Request {
+    headers: any
+}
+
 export class HttpService {
     protected _baseUrl: string;
-    protected _baseOptions: Request;
+    protected _baseOptions: Partial<IRequest>;
     protected _timeoutms: number;
 
-    constructor(baseUrl: string, options: any = {}, timeoutms: number = 300000) {
+    constructor(baseUrl: string, options: Partial<IRequest> = {}, timeoutms: number = DEFAULT_TIMEOUT_MS) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
         this._timeoutms = timeoutms;
@@ -22,12 +28,12 @@ export class HttpService {
         return this._currentRequestCount;
     }
 
-    public async get<T>(route: string, options?: Request): Promise<T> {
+    public async get<T>(route: string, options?: Partial<IRequest>): Promise<T> {
         return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
             {method: 'get'}));
     }
 
-    public async post<T>(route: string, body?: any, options?: Request): Promise<T> {
+    public async post<T>(route: string, body?: any, options?: Partial<IRequest>): Promise<T> {
         return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
             {
                 method: 'post',
@@ -35,7 +41,7 @@ export class HttpService {
             }));
     }
 
-    public async put<T>(route: string, body?: any, options?: Request): Promise<T> {
+    public async put<T>(route: string, body?: any, options?: Partial<IRequest>): Promise<T> {
         return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
             {
                 method: 'put',
@@ -43,7 +49,7 @@ export class HttpService {
             }));
     }
 
-    public async patch<T>(route: string, body?: any, options?: Request): Promise<T> {
+    public async patch<T>(route: string, body?: any, options?: Partial<IRequest>): Promise<T> {
         return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
             {
                 method: 'patch',
@@ -51,12 +57,12 @@ export class HttpService {
             }));
     }
 
-    public async delete<T>(route: string, options?: Request): Promise<T> {
+    public async delete<T>(route: string, options?: Partial<IRequest>): Promise<T> {
         return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
             {method: 'delete'}));
     }
 
-    public async requestRaw<T>(route: string, options?: Request): Promise<T> {
+    public async requestRaw<T>(route: string, options?: Partial<IRequest>): Promise<T> {
         this._currentRequestCount++;
         try {
             return await Promise.race([
@@ -72,12 +78,12 @@ export class HttpService {
         }
     }
 
-    public async request<T>(route: string, body?: any, options?: Request): Promise<T> {
+    public async request<T>(route: string, body?: any, options?: Partial<IRequest>): Promise<T> {
         return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
             {body: JSON.stringify(body)}));
     }
 
-    protected async _request<T>(url: string, options: Request): Promise<T> {
+    protected async _request<T>(url: string, options: Partial<IRequest>): Promise<T> {
         this._currentRequestCount++;
         try {
             const response: Response = await Promise.race([
@@ -88,7 +94,7 @@ export class HttpService {
                 ]
             );
             if (response.ok) {
-                return await response.json();
+                return await this._parseResponse(response);
             } else {
                 this._handleError(response);
             }
@@ -97,6 +103,20 @@ export class HttpService {
         } finally {
             this._currentRequestCount--;
         }
+    }
+
+    protected async _parseResponse(response: Response): Promise<any> {
+        const responseText = await response.text();
+        if (!responseText) {
+            return null;
+        }
+        let responseObj;
+        try {
+            responseObj = JSON.parse(responseText);
+        } catch {
+            return responseText;
+        }
+        return responseObj;
     }
 
     protected _handleError(err: Response | Error): void {
