@@ -5,7 +5,7 @@ import {HttpTimeoutError} from './error/http-timeout-error';
 
 es6promise.polyfill();
 
-export const DEFAULT_TIMEOUT = 5000;
+export const DEFAULT_TIMEOUT_MS = 5000;
 
 export interface IRequest extends Request {
     headers: any
@@ -16,7 +16,7 @@ export class HttpService {
     protected _baseOptions: Partial<IRequest>;
     protected _timeoutms: number;
 
-    constructor(baseUrl: string, options: Partial<IRequest> = {}, timeoutms: number = DEFAULT_TIMEOUT) {
+    constructor(baseUrl: string, options: Partial<IRequest> = {}, timeoutms: number = DEFAULT_TIMEOUT_MS) {
         this._baseUrl = baseUrl;
         this._baseOptions = options;
         this._timeoutms = timeoutms;
