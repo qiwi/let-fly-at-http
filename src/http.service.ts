@@ -96,10 +96,10 @@ export class HttpService {
             if (response.ok) {
                 return await this._parseResponse(response);
             } else {
-                this._handleError(response);
+                await this._handleError(response);
             }
         } catch (err) {
-            this._handleError(err);
+            await this._handleError(err);
         } finally {
             this._currentRequestCount--;
         }
@@ -119,7 +119,7 @@ export class HttpService {
         return responseObj;
     }
 
-    protected _handleError(err: Response | Error): void {
+    protected async _handleError(err: Response | Error): Promise<void> {
         if (err instanceof HttpResponseError || err instanceof HttpTimeoutError) {
             throw err;
         }
