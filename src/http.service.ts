@@ -1,5 +1,6 @@
 import * as es6promise from 'es6-promise';
 import * as fetch from 'isomorphic-fetch';
+import * as queryString from 'query-string';
 import {HttpResponseError} from './error/http-response-error';
 import {HttpTimeoutError} from './error/http-timeout-error';
 
@@ -28,8 +29,11 @@ export class HttpService {
         return this._currentRequestCount;
     }
 
-    public async get<T>(route: string, options?: Partial<IRequest>): Promise<T> {
-        return await this._request<T>(this._baseUrl + route, Object.assign({}, this._baseOptions, options,
+    public async get<T>(route: string, params?: any, options?: Partial<IRequest>): Promise<T> {
+        let url = this._baseUrl + route;
+        url += '?' + queryString.stringify(params);
+        // Not beautifull at all but totally isomorphical lol.
+        return await this._request<T>(url, Object.assign({}, this._baseOptions, options,
             {method: 'get'}));
     }
 

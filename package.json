@@ -18,8 +18,10 @@
   "author": "Nikita Savkin",
   "license": "MIT",
   "dependencies": {
+    "@types/query-string": "^6.1.1",
     "es6-promise": "^4.2.4",
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^2.2.1",
+    "query-string": "^6.2.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.4",
