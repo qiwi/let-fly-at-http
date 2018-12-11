@@ -1,6 +1,6 @@
 {
   "name": "@qiwi/let-fly-at-http",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Yet another http client",
   "main": "build/index.js",
   "scripts": {
