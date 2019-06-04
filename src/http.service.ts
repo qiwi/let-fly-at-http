@@ -124,6 +124,9 @@ export class HttpService {
     }
 
     protected async _handleError(err: Response | Error): Promise<void> {
+        if (err instanceof Response){
+            err = await this._parseResponse(err);
+        }
         if (err instanceof HttpResponseError || err instanceof HttpTimeoutError) {
             throw err;
         }

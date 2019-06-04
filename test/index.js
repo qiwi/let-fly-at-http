@@ -17,7 +17,20 @@ describe('HttpService', () => {
             .catch((err) => {
                 expect(err.message).to.eql(HttpResponseError.ERROR_CODE);
                 done();
-            });
+            })
+            .catch(err => done(err));
+    });
+
+    it('error when request failed is not raw Response', (done) => {
+        client.get('widget-full-info', {widgetAliasCode: 'eutfweufwsdhoewufgwietf'})
+            .then(() => {
+                done(new Error('no error was thrown'));
+            })
+            .catch((err) => {
+                expect(err._response instanceof Response).to.eql(false);
+                done();
+            })
+            .catch(err => done(err));
     });
 
     it('timeout error works', (done) => {
@@ -29,7 +42,8 @@ describe('HttpService', () => {
             .catch((err) => {
                 expect(err.message).to.eql(HttpTimeoutError.ERROR_CODE);
                 done();
-            });
+            })
+            .catch(err => done(err));
     })
 });
 
