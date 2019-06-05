@@ -130,6 +130,6 @@ export class HttpService {
         if (err instanceof HttpResponseError || err instanceof HttpTimeoutError) {
             throw err;
         }
-        throw new HttpResponseError(err as Response);
+        throw new HttpResponseError(err);
     }
 }
